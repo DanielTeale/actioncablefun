@@ -1,7 +1,9 @@
 jQuery(document).on 'turbolinks:load', ->
-  messages_to_bottom = -> messages.scrollTop(messages.prop("scrollHeight"))
   messages = $('#conversation-body')
+  if messages.length > 0
+    messages_to_bottom = -> messages.scrollTop(messages.prop("scrollHeight"))
 
+    messages_to_bottom()
   if $('#current-user').size() > 0
     App.personal_chat = App.cable.subscriptions.create {
       channel: "NotificationsChannel"
@@ -13,12 +15,12 @@ jQuery(document).on 'turbolinks:load', ->
       # Called when the subscription has been terminated by the server
 
     received: (data) ->
-      if messages.size() > 0 && messages.data('conversation-id') is data['conversation_id']
-        messages.append data['message']
-        messages_to_bottom()
-      else
-        $.getScript('/conversations') if $('#conversations').size() > 0
-        $('body').append(data['notification']) if data['notification']
+  if messages.size() > 0 && messages.data('conversation-id') is data['conversation_id']
+    messages.append data['message']
+    messages_to_bottom()
+  else
+    $.getScript('/conversations') if $('#conversations').size() > 0
+    $('body').append(data['notification']) if data['notification']
   if messages.length > 0
     messages_to_bottom()
     $('#new_personal_message').submit (e) ->
